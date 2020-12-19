@@ -5,12 +5,12 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Veinify/Roblox-Rare-UserName-Generator.git"
+    "url": "git+https://github.com/Veinify/Roblox-Mutual-Friends-Checker.git"
   },
   "bugs": {
-    "url": "https://github.com/Veinify/Roblox-Rare-UserName-Generator/issues"
+    "url": "https://github.com/Veinify/Roblox-Mutual-Friends-Checker/issues"
   },
-  "homepage": "https://github.com/Veinify/Roblox-Rare-UserName-Generator#readme",
+  "homepage": "https://github.com/Veinify/Roblox-Mutual-Friends-Checker#readme",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ."
