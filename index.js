@@ -1,9 +1,6 @@
-const request = require('request');
+const request = require('node-superfetch');
 const fs = require('fs');
 const readline = require('readline');
-const config = require('./config');
-const { WebhookClient, MessageEmbed } = require('discord.js');
-const express = require('express');
 const rl = readline.createInterface({
 	input: process.stdin,
 	output: process.stdout
@@ -22,10 +19,14 @@ var colors = {
 	UI1: '\033[37m',
 	UI2: '\033[90m'
 };
-let max = 0;
-let current = 0;
-let paused = false;
 const title = fs.readFileSync('./title.txt', 'utf8');
+
+/*---------------*/
+
+let Person1;
+let Person2;
+
+/*---------------*/
 
 async function init() {
 	await console.log(
@@ -33,187 +34,109 @@ async function init() {
 			colors.CYAN
 		}Veinify#1210\n${colors.UI1}Found a bug? Please send me a dm on my discord!`
 	);
-	await checkConfig();
 	await console.log(`${colors.GREEN}loaded!${colors.RESET}`);
 	await console.log('...');
-	if (!config.autoStart.enabled) {
-		await rl.question(
-			`${colors.YELLOW}How many usernames do you want to generate?\n${
-				colors.RESET
-			}> ${colors.GREEN}`,
-			amount => {
-				if (!isNaN(amount)) {
-					max = amount;
-					console.log(
-						`${
-							colors.GREEN
-						}Done! This might take some time, Please wait till the process is completed!${
-							colors.RESET
-						}`
-					);
-					userLoop();
-				} else {
-					console.log(
-						`${colors.RED}Invalid input (val=${amount}). Please try again!`
-					);
-					process.exit();
-				}
-			}
-		);
-	} else {
-		max = config.autoStart.maxAmount;
-		userLoop();
-	}
-}
-
-function checkConfig() {
-	if (
-		config.minimumLetters < 3 ||
-		config.minimumLetters > 20 ||
-		config.maximumLetters < 3 ||
-		config.maximumLetters > 20
-	) {
-		console.error(
-			`${
-				colors.RED
-			}The minimum amount of letters per username is 3, And the maximum is 20. You can change this in your config file.`
-		);
-		process.exit();
-	}
-	if (
-		typeof config.autoStart.enabled !== 'boolean' ||
-		typeof config.useDiscordWebhook.enabled !== 'boolean'
-	) {
-		console.log(
-			`${
-				colors.RED
-			}The 'enabled' options in your config file must be a boolean. (true/false)`
-		);
-		process.exit();
-	}
-	if (
-		config.autoStart.enabled &&
-		typeof config.autoStart.maxAmount === 'string'
-	) {
-		console.error(
-			`${
-				colors.RED
-			}The maxAmount must not be a string! You can change this in your config file.`
-		);
-		process.exit();
-	}
-	if (
-		(config.useDiscordWebhook.enabled &&
-			!config.useDiscordWebhook.webhookLink) ||
-		(config.useDiscordWebhook.enabled &&
-			config.useDiscordWebhook.webhookLink === '')
-	) {
-		console.error(
-			`${
-				colors.RED
-			}Missing webhook link. If you don't wanna use it, You can disable it on the config file.`
-		);
-		process.exit();
-	}
-}
-function getRandomName(length) {
-	var result = '';
-	let max_ = 1;
-	let i;
-	var characters =
-		'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	var charactersLength = characters.length;
-	for (i = 0; i < length; i++) {
-		if (max_ > 0) {
-			if (i > 0 && i < length - 1) {
-				let num = Math.floor(Math.random() * 100) + 1;
-				if (num > 80) {
-					max_ -= 1;
-					i++;
-					result += '_';
-					//return;
-				}
-			}
-		}
-		result += characters.charAt(Math.floor(Math.random() * charactersLength));
-	}
-	return result;
-}
-
-function userLoop() {
-	setInterval(() => {
-		if (paused) return;
-		if (current < max || !max) {
-			const max = config.maximumLetters;
-			const min = config.minimumLetters;
-			const length = Math.random() * (max - min) + min;
-			getUser(getRandomName(length));
-			//getUser('re')
-		} else {
-			console.log(`${colors.GREEN}Process is completed!`);
-			process.exit();
-		}
-	}, 500);
-}
-
-function getUser(username) {
-	request(
-		`https://auth.roblox.com/v2/usernames/validate?request.username=${username}&request.birthday=04%2F15%2F02&request.context=Signup`,
-		function(error, response, body) {
-			if (body === 'The service is unavailable.') {
-				console.log(
-					`${
-						colors.RED
-					}RobloxApiError: The service is currently unavailable. The snipes will be paused for 1 minute.`
-				);
-				pauseSnipe(60000);
-				return;
-			}
-			body = JSON.parse(body);
-			if (body.message == 'Username is valid') {
-				console.log(
-					`${colors.RESET}This username is available!\nUsername: ${username}${
-						!max ? '' : `\n(${current + 1}/${max})`
-					}`
-				);
-				if (config.useDiscordWebhook.enabled) {
-					const idntoken = config.useDiscordWebhook.webhookLink
-						.replace('https://discord.com/api/webhooks/', '')
-						.split('/');
-					const hook = new WebhookClient(idntoken[0], idntoken[1]);
-					const embed = new MessageEmbed()
-						.setTitle('Username Sniped!')
-						.addField('Username:', username, true)
-						.setColor('RANDOM')
-						.setFooter('Made by Veinify#1210')
-						.setTimestamp();
-					hook.send(embed).catch(err => {
-						console.log(
-							`${colors.RED}You have provided an invalid webhook link.${
-								colors.RESET
-							}`
-						);
+	await rl.question(
+		`${colors.YELLOW}Please enter the 1st user's id.\n${colors.RESET}> ${
+			colors.GREEN
+		}`,
+		async id => {
+			Person1 = id;
+			await rl.question(
+				`${colors.YELLOW}Please enter the 2nd user's id.\n${colors.RESET}> ${
+					colors.GREEN
+				}`,
+				id => {
+					if (id === Person1) {
+						console.log(`${colors.RED}You cannot use the same id!`);
 						process.exit();
-					});
+						return;
+					}
+					Person2 = id;
+					start();
 				}
-				current++;
-				return;
-			} else return; //console.log(`${username} is taken.`);
+			);
 		}
 	);
 }
-function pauseSnipe(time) {
-	paused = true;
-	setTimeout(() => {
-		paused = false;
-		console.log(`${colors.GREEN}The snipe has been resumed.`);
-	}, time);
-}
-if (config.useWebServer) {
-	const server = express();
-	server.all('/', (req, res) => {
-		res.send(`Your username sniper is on!`);
+
+async function start() {
+	let result = [];
+	let total = 0;
+	const Person1name = await getUsername(Person1);
+	const Person2name = await getUsername(Person2);
+	console.log(
+		`${colors.YELLOW}${Person1name} ${colors.GREEN}⇄  ${
+			colors.YELLOW
+		}${Person2name}\n${colors.CYAN}Checking mutual friends...`
+	);
+	let Person1friends = await getFriends(Person1);
+	Person1friends = Person1friends.data.map(function(name) {
+		return name.name;
 	});
-	server.listen(3000);
+	let Person2friends = await getFriends(Person2);
+	Person2friends = Person2friends.data.map(function(name) {
+		return name.name;
+	});
+	await Person1friends.forEach(function(user) {
+		if (Person2friends.includes(user)) {
+			total++;
+			result.push(`${colors.YELLOW}${total}${colors.WHITE}. ${user}`);
+		}
+	});
+
+	if (result.length > 0) {
+		console.log(
+			`${colors.GREEN}Out of ${Person1friends.length +
+				Person2friends.length} users. ${total} mutual users found!\n ${result.join(
+				'\n'
+			)}`
+		);
+	} else {
+		console.log(
+			`${colors.RED}Out of ${Person1friends.length +
+				Person2friends.length} users. No mutual friends found.`
+		);
+	}
+	process.exit();
+}
+async function getFriends(id) {
+	try {
+		const { body } = await request.get(
+			`https://friends.roblox.com/v1/users/${id}/friends`
+		);
+		return body;
+	} catch (e) {
+		if (e.message.toLowerCase() === '404 notfound') {
+			console.log(
+				`${colors.RED}You have provided an invalid user-id. Please try again.`
+			);
+			process.exit();
+			return
+		} else if (e.message.toLowerCase() === '400 bad request' || e.message.toLowerCase() === '400 badrequest') {
+		    console.log(`${colors.RED}One of the user is either banned or invalid.`)
+		    process.exit();
+		    return
+		} else {
+			console.log(e);
+			process.exit();
+			return
+		}
+	}
+}
+async function getUsername(id) {
+	try {
+		const { body } = await request.get(`https://api.roblox.com/users/${id}`);
+		return body.Username;
+	} catch (e) {
+		if (e.message.toLowerCase() !== '404 notfound') {
+			console.log(e);
+		} else {
+			console.log(
+				`${colors.RED}You have provided an invalid user-id. Please try again.`
+			);
+			process.exit();
+		}
+	}
 }
 init();

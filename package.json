@@ -1,14 +1,14 @@
 {
-  "name": "Roblox-Rare-Username-Generator",
-  "version": "1.0.1",
-  "description": "Easy to use Roblox rare username generator",
+  "name": "Roblox-Mutual-Friends-Checker",
+  "version": "1.0.0",
+  "description": "Simple project that allows you to check \"mutual\" friends between 2 users",
   "main": "index.js",
   "repository": {
-      "type": "git",
-      "url": "git+https://github.com/Veinify/Roblox-Rare-UserName-Generator.git"
+    "type": "git",
+    "url": "git+https://github.com/Veinify/Roblox-Rare-UserName-Generator.git"
   },
   "bugs": {
-      "url": "https://github.com/Veinify/Roblox-Rare-UserName-Generator/issues"
+    "url": "https://github.com/Veinify/Roblox-Rare-UserName-Generator/issues"
   },
   "homepage": "https://github.com/Veinify/Roblox-Rare-UserName-Generator#readme",
   "scripts": {
@@ -18,11 +18,6 @@
   "author": "Veinify",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "^12.4.1",
-    "express": "^4.17.1",
-    "quick.hook": "^1.5.1",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.6",
-    "webhook-discord": "^3.7.7"
+    "node-superfetch": "^0.1.10"
   }
 }
