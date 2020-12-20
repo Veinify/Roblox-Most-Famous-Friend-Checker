@@ -5,6 +5,8 @@ const rl = readline.createInterface({
 	input: process.stdin,
 	output: process.stdout
 });
+const AsciiTable = require('ascii-table');
+const moment = require('moment')
 
 var colors = {
 	RESET: '\033[39m',
@@ -70,34 +72,44 @@ async function start() {
 			colors.YELLOW
 		}${Person2name}\n${colors.CYAN}Checking mutual friends...`
 	);
-	let Person1friends = await getFriends(Person1);
-	Person1friends = Person1friends.data.map(function(name) {
+	let currentDate = Date.now()
+	let Person1friends = (await getFriends(Person1)).data.sort(function(a, b) {
+		return a.name.localeCompare(b.name);
+	}).map(function(name) {
 		return name.name;
 	});
-	let Person2friends = await getFriends(Person2);
-	Person2friends = Person2friends.data.map(function(name) {
+	let Person2friends = (await getFriends(Person2)).data.map(function(name) {
 		return name.name;
 	});
-	await Person1friends.forEach(function(user) {
+	const combined = Person1friends.concat(Person2friends.filter((name) => Person1friends.indexOf(name) < 0));
+	const table = new AsciiTable('Mutual Friends Result')
+	  .setHeading('No.', 'Username', 'Account Date')
+	for (const user of Person1friends) {
 		if (Person2friends.includes(user)) {
+	let id = await getUserId(`${user}`)
+	let date = moment(new Date(await getUserDate(id))).format('MM/DD/YYYY');
 			total++;
 			result.push(`${colors.YELLOW}${total}${colors.WHITE}. ${user}`);
+			table.addRow(total, user, date)
 		}
-	});
+	};
 
-	if (result.length > 0) {
+    if (result.length > 0) {
 		console.log(
-			`${colors.GREEN}Out of ${Person1friends.length +
-				Person2friends.length} users. ${total} mutual users found!\n ${result.join(
+			`${colors.GREEN}Out of ${combined.length} (${Person1friends.length +
+				Person2friends.length} total) users. ${total} mutual users found!\n${result.join(
 				'\n'
 			)}`
 		);
+	fs.writeFileSync('./result.txt', table.toString())
+	console.log(`${colors.WHITE}The result has been writen in ${colors.YELLOW}result.txt ${colors.WHITE}file.`)
 	} else {
 		console.log(
 			`${colors.RED}Out of ${Person1friends.length +
 				Person2friends.length} users. No mutual friends found.`
 		);
 	}
+	console.log(`${colors.BLUE}Completed in ${colors.CYAN}${((Date.now() - currentDate) / 1000)}${colors.BLUE} second(s).${colors.RESET}`)
 	process.exit();
 }
 async function getFriends(id) {
@@ -131,6 +143,58 @@ async function getUsername(id) {
 	try {
 		const { body } = await request.get(`https://api.roblox.com/users/${id}`);
 		return body.Username;
+	} catch (e) {
+		if (e.message.toLowerCase() === '404 notfound') {
+			console.log(
+				`${colors.RED}You have provided an invalid user-id. Please try again.`
+			);
+			process.exit();
+			return;
+		} else if (
+			e.message.toLowerCase() === '400 bad request' ||
+			e.message.toLowerCase() === '400 badrequest'
+		) {
+			console.log(`${colors.RED}One of the user is either banned or invalid.`);
+			process.exit();
+			return;
+		} else {
+			console.log(e);
+			process.exit();
+			return;
+		}
+	}
+}
+
+async function getUserId(name) {
+	try {
+		const { body } = await request.get(`https://api.roblox.com/users/get-by-username?username=${name}`);
+		return body.Id;
+	} catch (e) {
+		if (e.message.toLowerCase() === '404 notfound') {
+			console.log(
+				`${colors.RED}You have provided an invalid usermame. Please try again.`
+			);
+			process.exit();
+			return;
+		} else if (
+			e.message.toLowerCase() === '400 bad request' ||
+			e.message.toLowerCase() === '400 badrequest'
+		) {
+			console.log(`${colors.RED}One of the user is either banned or invalid.`);
+			process.exit();
+			return;
+		} else {
+			console.log(e);
+			process.exit();
+			return;
+		}
+	}
+}
+
+async function getUserDate(id) {
+	try {
+		const { body } = await request.get(`https://users.roblox.com/v1/users/${id}`);
+		return body.created;
 	} catch (e) {
 		if (e.message.toLowerCase() === '404 notfound') {
 			console.log(
