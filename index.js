@@ -58,6 +58,10 @@ async function start() {
 	let userfriends = (await getFriends(user)).data
 	let friendsize = ObjectLength(userfriends)
 	console.log(`${colors.YELLOW}Checking ${colors.RED}${username} ${colors.YELLOW}most famous friend... (Estimated time: ${avgCompleteTime(friendsize)} seconds)`)
+	if (friendsize <= 0) {
+	    console.log(`${colors.WHITE}${username} ${colors.UI1}doesn't have any friend!`);
+	    process.exit();
+	}
 	userfriends = (await asyncSort(userfriends , async function(a, b) {
 		a = await getUserFollowCount(a.id)
 		b = await getUserFollowCount(b.id)
@@ -103,7 +107,7 @@ async function getFriends(id) {
 			e.message.toLowerCase() === '400 bad request' ||
 			e.message.toLowerCase() === '400 badrequest'
 		) {
-			console.log(`${colors.RED}One of the user is either banned or invalid.`);
+			console.log(`${colors.RED}The user is either banned or invalid.`);
 			process.exit();
 			return;
 		} else {
@@ -128,7 +132,7 @@ async function getUsername(id) {
 			e.message.toLowerCase() === '400 bad request' ||
 			e.message.toLowerCase() === '400 badrequest'
 		) {
-			console.log(`${colors.RED}One of the user is either banned or invalid.`);
+			console.log(`${colors.RED}The user is either banned or invalid.`);
 			process.exit();
 			return;
 		} else {
@@ -154,7 +158,7 @@ async function getUserId(name) {
 			e.message.toLowerCase() === '400 bad request' ||
 			e.message.toLowerCase() === '400 badrequest'
 		) {
-			console.log(`${colors.RED}One of the user is either banned or invalid.`);
+			console.log(`${colors.RED}The user is either banned or invalid.`);
 			process.exit();
 			return;
 		} else {
@@ -180,7 +184,7 @@ async function getUserFollowCount(id) {
 			e.message.toLowerCase() === '400 bad request' ||
 			e.message.toLowerCase() === '400 badrequest'
 		) {
-			console.log(`${colors.RED}One of the user is either banned or invalid.`);
+			console.log(`${colors.RED}The user is either banned or invalid.`);
 			process.exit();
 			return;
 		} else {
@@ -206,7 +210,7 @@ async function isBanned(id) {
 			e.message.toLowerCase() === '400 bad request' ||
 			e.message.toLowerCase() === '400 badrequest'
 		) {
-			console.log(`${colors.RED}One of the user is either banned or invalid.`);
+			console.log(`${colors.RED}The user is either banned or invalid.`);
 			process.exit();
 			return;
 		} else {
@@ -235,7 +239,7 @@ async function getUserPlaceVisits(id) {
 			e.message.toLowerCase() === '400 bad request' ||
 			e.message.toLowerCase() === '400 badrequest'
 		) {
-			console.log(`${colors.RED}One of the user is either banned or invalid.`);
+			console.log(`${colors.RED}The user is either banned or invalid.`);
 			process.exit();
 			return;
 		} else {
