@@ -1,4 +1,5 @@
 const request = require('node-superfetch');
+const request2 = require('async-request');
 const fs = require('fs');
 const readline = require('readline');
 const rl = readline.createInterface({
@@ -7,7 +8,8 @@ const rl = readline.createInterface({
 });
 const AsciiTable = require('ascii-table');
 const moment = require('moment')
-
+const cheerio = require('cheerio')
+const { asyncSort, ObjectLength, avgCompleteTime, completeTime } = require('./util')
 var colors = {
 	RESET: '\033[39m',
 	BLACK: '\033[90m',
@@ -25,8 +27,7 @@ const title = fs.readFileSync('./title.txt', 'utf8');
 
 /*---------------*/
 
-let Person1;
-let Person2;
+let user;
 
 /*---------------*/
 
@@ -39,77 +40,50 @@ async function init() {
 	await console.log(`${colors.GREEN}loaded!${colors.RESET}`);
 	await console.log('...');
 	await rl.question(
-		`${colors.YELLOW}Please enter the 1st user's id.\n${colors.RESET}> ${
+		`${colors.YELLOW}Enter your user id.\n${colors.RESET}> ${
 			colors.GREEN
 		}`,
 		async id => {
-			Person1 = id;
-			await rl.question(
-				`${colors.YELLOW}Please enter the 2nd user's id.\n${colors.RESET}> ${
-					colors.GREEN
-				}`,
-				id => {
-					if (id === Person1) {
-						console.log(`${colors.RED}You cannot use the same id!`);
-						process.exit();
-						return;
-					}
-					Person2 = id;
-					start();
+			user = id;
+			start();
 				}
 			);
-		}
-	);
 }
 
 async function start() {
 	let result = [];
 	let total = 0;
-	const Person1name = await getUsername(Person1);
-	const Person2name = await getUsername(Person2);
-	console.log(
-		`${colors.YELLOW}${Person1name} ${colors.GREEN}⇄  ${
-			colors.YELLOW
-		}${Person2name}\n${colors.CYAN}Checking mutual friends...`
-	);
+	const username = await getUsername(user);
 	let currentDate = Date.now()
-	let Person1friends = (await getFriends(Person1)).data.sort(function(a, b) {
-		return a.name.localeCompare(b.name);
-	}).map(function(name) {
+	let userfriends = (await getFriends(user)).data
+	let friendsize = ObjectLength(userfriends)
+	console.log(`${colors.YELLOW}Checking ${colors.RED}${username} ${colors.YELLOW}most famous friend... (Estimated time: ${avgCompleteTime(friendsize)} seconds)`)
+	userfriends = (await asyncSort(userfriends , async function(a, b) {
+		a = await getUserFollowCount(a.id)
+		b = await getUserFollowCount(b.id)
+		return b - a;
+    })).map(function(name) {
 		return name.name;
 	});
-	let Person2friends = (await getFriends(Person2)).data.map(function(name) {
-		return name.name;
-	});
-	const combined = Person1friends.concat(Person2friends.filter((name) => Person1friends.indexOf(name) < 0));
-	const table = new AsciiTable('Mutual Friends Result')
-	  .setHeading('No.', 'Username', 'Account Date')
-	for (const user of Person1friends) {
-		if (Person2friends.includes(user)) {
-	let id = await getUserId(`${user}`)
-	let date = moment(new Date(await getUserDate(id))).format('MM/DD/YYYY');
-			total++;
-			result.push(`${colors.YELLOW}${total}${colors.WHITE}. ${user}`);
-			table.addRow(total, user, date)
-		}
+	const table = new AsciiTable(`${username}'s Most Famous Friends`)
+	  .setHeading('No.', 'Username', 'Follower', 'Place Visit')
+	for (const user of userfriends) {
+	    const id = await getUserId(user);
+	    const followcount = await getUserFollowCount(id);
+	    const placevisit = await getUserPlaceVisits(id);
+	    const isbanned = await isBanned(id);
+	    result++
+	    table.addRow(result, isbanned ? `${user} [BANNED]` : user, followcount, placevisit)
 	};
-
-    if (result.length > 0) {
-		console.log(
-			`${colors.GREEN}Out of ${combined.length} (${Person1friends.length +
-				Person2friends.length} total) users. ${total} mutual users found!\n${result.join(
-				'\n'
-			)}`
-		);
+	console.log(`${colors.RESET}${table}`)
 	fs.writeFileSync('./result.txt', table.toString())
 	console.log(`${colors.WHITE}The result has been writen in ${colors.YELLOW}result.txt ${colors.WHITE}file.`)
-	} else {
-		console.log(
-			`${colors.RED}Out of ${Person1friends.length +
-				Person2friends.length} users. No mutual friends found.`
-		);
+	var data = {
+	    time: completeTime(Date.now(), currentDate),
+	    userSize: friendsize
 	}
-	console.log(`${colors.BLUE}Completed in ${colors.CYAN}${((Date.now() - currentDate) / 1000)}${colors.BLUE} second(s).${colors.RESET}`)
+	fs.writeFileSync('./data.txt', JSON.stringify(data))
+	console.log(`${colors.BLUE}Completed in ${colors.CYAN}${completeTime(Date.now(), currentDate)}${colors.BLUE} second(s).${colors.RESET}`)
 	process.exit();
 }
 async function getFriends(id) {
@@ -191,10 +165,65 @@ async function getUserId(name) {
 	}
 }
 
-async function getUserDate(id) {
+async function getUserFollowCount(id) {
+	try {
+		const { body } = await request.get(`https://friends.roblox.com/v1/users/${id}/followers/count`);
+		return body.count;
+	} catch (e) {
+		if (e.message.toLowerCase() === '404 notfound') {
+			console.log(
+				`${colors.RED}You have provided an invalid user-id. Please try again.`
+			);
+			process.exit();
+			return;
+		} else if (
+			e.message.toLowerCase() === '400 bad request' ||
+			e.message.toLowerCase() === '400 badrequest'
+		) {
+			console.log(`${colors.RED}One of the user is either banned or invalid.`);
+			process.exit();
+			return;
+		} else {
+			console.log(e);
+			process.exit();
+			return;
+		}
+	}
+}
+
+async function isBanned(id) {
 	try {
 		const { body } = await request.get(`https://users.roblox.com/v1/users/${id}`);
-		return body.created;
+		return body.isBanned;
+	} catch (e) {
+		if (e.message.toLowerCase() === '404 notfound') {
+			console.log(
+				`${colors.RED}You have provided an invalid user-id. Please try again.`
+			);
+			process.exit();
+			return;
+		} else if (
+			e.message.toLowerCase() === '400 bad request' ||
+			e.message.toLowerCase() === '400 badrequest'
+		) {
+			console.log(`${colors.RED}One of the user is either banned or invalid.`);
+			process.exit();
+			return;
+		} else {
+			console.log(e);
+			process.exit();
+			return;
+		}
+	}
+}
+
+async function getUserPlaceVisits(id) {
+	try {
+		const { body } = await request2(`https://www.roblox.com/users/${id}/profile`);
+		const $ = cheerio.load(body);
+		const count = 
+		$('.profile-stat .text-lead').toString().replace(/<p class="text-lead">(.*?)<\/p>/, '').replace(/<p class="text-lead">/, '').replace(/<\/p>/, ''); // An idiot way to do this
+		return count;
 	} catch (e) {
 		if (e.message.toLowerCase() === '404 notfound') {
 			console.log(
