@@ -112,7 +112,7 @@ async function getFriends(id) {
 			return;
 		} else {
 			console.log(e);
-			process.exit();
+			//process.exit();
 			return;
 		}
 	}
@@ -137,7 +137,7 @@ async function getUsername(id) {
 			return;
 		} else {
 			console.log(e);
-			process.exit();
+			//process.exit();
 			return;
 		}
 	}
@@ -163,7 +163,7 @@ async function getUserId(name) {
 			return;
 		} else {
 			console.log(e);
-			process.exit();
+			//process.exit();
 			return;
 		}
 	}
@@ -189,7 +189,7 @@ async function getUserFollowCount(id) {
 			return;
 		} else {
 			console.log(e);
-			process.exit();
+			//process.exit();
 			return;
 		}
 	}
@@ -215,7 +215,7 @@ async function isBanned(id) {
 			return;
 		} else {
 			console.log(e);
-			process.exit();
+			//process.exit();
 			return;
 		}
 	}
@@ -244,7 +244,7 @@ async function getUserPlaceVisits(id) {
 			return;
 		} else {
 			console.log(e);
-			process.exit();
+			//process.exit();
 			return;
 		}
 	}

@@ -1,7 +1,55 @@
-.-------------------------------------------.
-|         Rem's Most Famous Friends         |
-|-------------------------------------------|
-| No. |  Username  | Follower | Place Visit |
-|-----|------------|----------|-------------|
-|   1 | AlreadyPro |    21021 | 0           |
-'-------------------------------------------'
+.-------------------------------------------------------.
+|            indihome's Most Famous Friends             |
+|-------------------------------------------------------|
+| No. |        Username        | Follower | Place Visit |
+|-----|------------------------|----------|-------------|
+|   1 | typenameordie          |      803 | 0           |
+|   2 | remi555555555555       |      474 | 118         |
+|   3 | Thereallife100         |      422 | 49          |
+|   4 | EthanGamerTVfans2015   |      398 | 0           |
+|   5 | Uikeetan               |      373 | 1           |
+|   6 | DumbwaytoDolanLMAO     |      351 | 27          |
+|   7 | MrEmeraldWolf          |      292 | 22          |
+|   8 | xboxplaysroblox123     |      278 | 3           |
+|   9 | SPINOREXKing12334      |      268 | 0           |
+|  10 | Bereghostgamesvans     |      199 | 0           |
+|  11 | puripuri10             |      174 | 0           |
+|  12 | ayub787                |      164 | 3           |
+|  13 | amin787                |      163 | 15          |
+|  14 | kingsebastianwwe       |      134 | 0           |
+|  15 | R2DMaster1234 [BANNED] |      130 |             |
+|  16 | fatehgood              |      126 | 6           |
+|  17 | Superstarman245        |      110 | 0           |
+|  18 | hanoon12000            |       71 | 18          |
+|  19 | hanoon1500             |       55 | 0           |
+|  20 | Donutcream2345         |       54 | 48          |
+|  21 | NaQuanMSN              |       46 | 0           |
+|  22 | Foxydepirateafox       |       44 | 0           |
+|  23 | ProGuest5000           |       44 | 99          |
+|  24 | BIGGIEISWAR            |       42 | 2           |
+|  25 | BabangAnjaaaay09       |       19 | 0           |
+|  26 | rainbowsophiemay       |       19 | 1           |
+|  27 | kenken0811             |       16 | 5           |
+|  28 | DarthRevanTheSithBoy   |       13 | 10          |
+|  29 | NarrowZoeyWinner09     |       10 | 1           |
+|  30 | Gamingbluegal          |       10 | 2           |
+|  31 | jahnavi6               |        9 | 3           |
+|  32 | PROTECTOR15848         |        7 | 0           |
+|  33 | kee_labiano            |        5 | 2           |
+|  34 | bernaxoxo              |        4 | 0           |
+|  35 | hajyswk                |        4 | 0           |
+|  36 | absdluka               |        4 | 0           |
+|  37 | baboythepro            |        4 | 0           |
+|  38 | richardpro1235         |        4 | 0           |
+|  39 | bryant12125            |        3 | 0           |
+|  40 | Zahidzia               |        2 | 0           |
+|  41 | sweetlove13594         |        2 | 0           |
+|  42 | enzoelijah             |        1 | 0           |
+|  43 | PUBLUN221              |        1 | 0           |
+|  44 | 123ryankee             |        1 | 1           |
+|  45 | BegimV1IALTI           |        1 | 0           |
+|  46 | GamingGodFAKE1         |        0 | 0           |
+|  47 | marky1234563           |        0 | 0           |
+|  48 | RobloLaualnie123       |        0 | 0           |
+|  49 | HamdanNinja3096        |        0 | 0           |
+'-------------------------------------------------------'

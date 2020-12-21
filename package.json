@@ -1,16 +1,16 @@
 {
   "name": "Roblox-Mutual-Friends-Checker",
   "version": "1.0.0",
-  "description": "Simple project that allows you to check \"mutual\" friends between 2 users",
+  "description": "Another project that i made to check someones most famous friend",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Veinify/Roblox-Mutual-Friends-Checker.git"
+    "url": "git+https://github.com/Veinify/Roblox-Most-Famous-Friend-Checker.git"
   },
   "bugs": {
-    "url": "https://github.com/Veinify/Roblox-Mutual-Friends-Checker/issues"
+    "url": "https://github.com/Veinify/Roblox-Most-Famous-Friend-Checker/issues"
   },
-  "homepage": "https://github.com/Veinify/Roblox-Mutual-Friends-Checker#readme",
+  "homepage": "https://github.com/Veinify/Roblox-Most-Famous-Friend-Checker#readme",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ."
