@@ -7,9 +7,9 @@ const rl = readline.createInterface({
 	output: process.stdout
 });
 const AsciiTable = require('ascii-table');
-const moment = require('moment')
-const cheerio = require('cheerio')
 const { asyncSort, ObjectLength, avgCompleteTime, completeTime } = require('./util')
+const ProgressBar = require("ora-progress-bar"); 
+
 var colors = {
 	RESET: '\033[39m',
 	BLACK: '\033[90m',
@@ -40,7 +40,7 @@ async function init() {
 	await console.log(`${colors.GREEN}loaded!${colors.RESET}`);
 	await console.log('...');
 	await rl.question(
-		`${colors.YELLOW}Enter your user id.\n${colors.RESET}> ${
+		`${colors.YELLOW}Enter Roblox user id:\n${colors.RESET}> ${
 			colors.GREEN
 		}`,
 		async id => {
@@ -51,34 +51,29 @@ async function init() {
 }
 
 async function start() {
-	let result = [];
-	let total = 0;
+    let result = [];
+  let count = 0;
 	const username = await getUsername(user);
 	let currentDate = Date.now()
-	let userfriends = (await getFriends(user)).data
-	let friendsize = ObjectLength(userfriends)
+	let userfriends = (await getFriends(user)).data.map(name => name.name)
+	let friendsize = userfriends.length
 	console.log(`${colors.YELLOW}Checking ${colors.RED}${username} ${colors.YELLOW}most famous friend... (Estimated time: ${avgCompleteTime(friendsize)} seconds)`)
 	if (friendsize <= 0) {
 	    console.log(`${colors.WHITE}${username} ${colors.UI1}doesn't have any friend!`);
 	    process.exit();
 	}
-	userfriends = (await asyncSort(userfriends , async function(a, b) {
-		a = await getUserFollowCount(a.id)
-		b = await getUserFollowCount(b.id)
-		return b - a;
-    })).map(function(name) {
-		return name.name;
-	});
+    const bar = new ProgressBar("Current Progress:", friendsize);
 	const table = new AsciiTable(`${username}'s Most Famous Friends`)
-	  .setHeading('No.', 'Username', 'Follower', 'Place Visit')
+	  .setHeading('Username', 'Follower', 'Place Visit')
 	for (const user of userfriends) {
 	    const id = await getUserId(user);
 	    const followcount = await getUserFollowCount(id);
 	    const placevisit = await getUserPlaceVisits(id);
 	    const isbanned = await isBanned(id);
-	    result++
-	    table.addRow(result, isbanned ? `${user} [BANNED]` : user, followcount, placevisit)
+        bar.progress()
+	    table.addRow(isbanned ? `${user} [BANNED]` : user, followcount, placevisit)
 	};
+    table.sortColumn(1, function(a,b) {return b - a})
 	console.log(`${colors.RESET}${table}`)
 	fs.writeFileSync('./result.txt', table.toString())
 	console.log(`${colors.WHITE}The result has been writen in ${colors.YELLOW}result.txt ${colors.WHITE}file.`)
@@ -223,11 +218,12 @@ async function isBanned(id) {
 
 async function getUserPlaceVisits(id) {
 	try {
-		const { body } = await request2(`https://www.roblox.com/users/${id}/profile`);
-		const $ = cheerio.load(body);
-		const count = 
-		$('.profile-stat .text-lead').toString().replace(/<p class="text-lead">(.*?)<\/p>/, '').replace(/<p class="text-lead">/, '').replace(/<\/p>/, ''); // An idiot way to do this
-		return count;
+        let c = 0;
+		const { body } = await request.get(`https://games.roblox.com/v2/users/${id}/games?sortOrder=Asc&limit=50`);
+		for (const game of body.data) {
+            c += game.placeVisits
+        }
+        return c;
 	} catch (e) {
 		if (e.message.toLowerCase() === '404 notfound') {
 			console.log(
