@@ -169,24 +169,7 @@ async function getUserFollowCount(id) {
 		const { body } = await request.get(`https://friends.roblox.com/v1/users/${id}/followers/count`);
 		return body.count;
 	} catch (e) {
-		if (e.message.toLowerCase() === '404 notfound') {
-			console.log(
-				`${colors.RED}You have provided an invalid user-id. Please try again.`
-			);
-			process.exit();
-			return;
-		} else if (
-			e.message.toLowerCase() === '400 bad request' ||
-			e.message.toLowerCase() === '400 badrequest'
-		) {
-			console.log(`${colors.RED}The user is either banned or invalid.`);
-			process.exit();
-			return;
-		} else {
-			console.log(e);
-			//process.exit();
-			return;
-		}
+		console.log(e)
 	}
 }
 
@@ -195,24 +178,7 @@ async function isBanned(id) {
 		const { body } = await request.get(`https://users.roblox.com/v1/users/${id}`);
 		return body.isBanned;
 	} catch (e) {
-		if (e.message.toLowerCase() === '404 notfound') {
-			console.log(
-				`${colors.RED}You have provided an invalid user-id. Please try again.`
-			);
-			process.exit();
-			return;
-		} else if (
-			e.message.toLowerCase() === '400 bad request' ||
-			e.message.toLowerCase() === '400 badrequest'
-		) {
-			console.log(`${colors.RED}The user is either banned or invalid.`);
-			process.exit();
-			return;
-		} else {
-			console.log(e);
-			//process.exit();
-			return;
-		}
+		console.log(e)
 	}
 }
 
@@ -225,24 +191,7 @@ async function getUserPlaceVisits(id) {
         }
         return c;
 	} catch (e) {
-		if (e.message.toLowerCase() === '404 notfound') {
-			console.log(
-				`${colors.RED}You have provided an invalid user-id. Please try again.`
-			);
-			process.exit();
-			return;
-		} else if (
-			e.message.toLowerCase() === '400 bad request' ||
-			e.message.toLowerCase() === '400 badrequest'
-		) {
-			console.log(`${colors.RED}The user is either banned or invalid.`);
-			process.exit();
-			return;
-		} else {
-			console.log(e);
-			//process.exit();
-			return;
-		}
+		console.log(e)
 	}
 }
 init();
