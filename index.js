@@ -92,7 +92,24 @@ async function getFriends(id) {
 		);
 		return body;
 	} catch (e) {
-		console.log(e)
+		if (e.message.toLowerCase() === '404 notfound') {
+			console.log(
+				`${colors.RED}You have provided an invalid user-id. Please try again.`
+			);
+			process.exit();
+			return;
+		} else if (
+			e.message.toLowerCase() === '400 bad request' ||
+			e.message.toLowerCase() === '400 badrequest'
+		) {
+			console.log(`${colors.RED}The user is either banned or invalid.`);
+			process.exit();
+			return;
+		} else {
+			console.log(e);
+			//process.exit();
+			return;
+        }
 	}
 }
 async function getUsername(id) {
@@ -100,7 +117,24 @@ async function getUsername(id) {
 		const { body } = await request.get(`https://api.roblox.com/users/${id}`);
 		return body.Username;
 	} catch (e) {
-		console.log(e)
+		if (e.message.toLowerCase() === '404 notfound') {
+			console.log(
+				`${colors.RED}You have provided an invalid user-id. Please try again.`
+			);
+			process.exit();
+			return;
+		} else if (
+			e.message.toLowerCase() === '400 bad request' ||
+			e.message.toLowerCase() === '400 badrequest'
+		) {
+			console.log(`${colors.RED}The user is either banned or invalid.`);
+			process.exit();
+			return;
+		} else {
+			console.log(e);
+			//process.exit();
+			return;
+    }
 	}
 }
 
