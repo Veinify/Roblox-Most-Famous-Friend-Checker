@@ -7,7 +7,6 @@ const rl = readline.createInterface({
 	output: process.stdout
 });
 const AsciiTable = require('ascii-table');
-const { asyncSort, ObjectLength, avgCompleteTime, completeTime } = require('./util')
 const ProgressBar = require("ora-progress-bar"); 
 
 var colors = {
@@ -23,7 +22,12 @@ var colors = {
 	UI1: '\033[37m',
 	UI2: '\033[90m'
 };
-const title = fs.readFileSync('./title.txt', 'utf8');
+let title;
+try {
+    title = fs.readFileSync('./title.txt', 'utf8');
+} catch {
+    title = colors.RED+'Failed to load title'+colors.RESET
+}
 
 /*---------------*/
 
@@ -51,13 +55,11 @@ async function init() {
 }
 
 async function start() {
-    let result = [];
-  let count = 0;
 	const username = await getUsername(user);
 	let currentDate = Date.now()
 	let userfriends = (await getFriends(user)).data.map(name => name.name)
 	let friendsize = userfriends.length
-	console.log(`${colors.YELLOW}Checking ${colors.RED}${username} ${colors.YELLOW}most famous friend... (Estimated time: ${avgCompleteTime(friendsize)} seconds)`)
+	console.log(`${colors.YELLOW}Checking ${colors.RED}${username} ${colors.YELLOW}most famous friend...`)
 	if (friendsize <= 0) {
 	    console.log(`${colors.WHITE}${username} ${colors.UI1}doesn't have any friend!`);
 	    process.exit();
@@ -77,12 +79,7 @@ async function start() {
 	console.log(`${colors.RESET}${table}`)
 	fs.writeFileSync('./result.txt', table.toString())
 	console.log(`${colors.WHITE}The result has been writen in ${colors.YELLOW}result.txt ${colors.WHITE}file.`)
-	var data = {
-	    time: completeTime(Date.now(), currentDate),
-	    userSize: friendsize
-	}
-	fs.writeFileSync('./data.txt', JSON.stringify(data))
-	console.log(`${colors.BLUE}Completed in ${colors.CYAN}${completeTime(Date.now(), currentDate)}${colors.BLUE} second(s).${colors.RESET}`)
+	console.log(`${colors.BLUE}Completed in ${colors.CYAN}${(Date.now()-currentDate)/1000}${colors.BLUE} second(s).${colors.RESET}`)
 	process.exit();
 }
 async function getFriends(id) {
