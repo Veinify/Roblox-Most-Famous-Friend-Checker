@@ -7,7 +7,7 @@ const rl = readline.createInterface({
 	output: process.stdout
 });
 const AsciiTable = require('ascii-table');
-const ProgressBar = require("ora-progress-bar"); 
+const ProgressBar = require("ora-progress-bar");
 
 var colors = {
 	RESET: '\033[39m',
@@ -24,9 +24,9 @@ var colors = {
 };
 let title;
 try {
-    title = fs.readFileSync('./title.txt', 'utf8');
+	title = fs.readFileSync('./title.txt', 'utf8');
 } catch {
-    title = colors.RED+'Failed to load title'+colors.RESET
+	title = colors.RED + 'Failed to load title' + colors.RESET
 }
 
 /*---------------*/
@@ -36,13 +36,14 @@ let user;
 /*---------------*/
 
 async function init() {
-	await console.log(
+	console.log(
 		`${colors.RED}${title.toString()}\n${colors.UI2}Made by: ${
 			colors.CYAN
 		}Veinify#1210\n${colors.UI1}Found a bug? Please send me a dm on my discord!`
 	);
-	await console.log(`${colors.GREEN}loaded!${colors.RESET}`);
-	await console.log('...');
+	console.log(`${colors.GREEN}loaded!${colors.RESET}`);
+	console.log(`${colors.RED}As of now, you cannot input ${colors.UI2}usernames${colors.RED} and only ${colors.UI2}user id${colors.RED}.${colors.RESET}`)
+	console.log('...');
 	await rl.question(
 		`${colors.YELLOW}Enter Roblox user id:\n${colors.RESET}> ${
 			colors.GREEN
@@ -50,8 +51,8 @@ async function init() {
 		async id => {
 			user = id;
 			start();
-				}
-			);
+		}
+	);
 }
 
 async function start() {
@@ -61,22 +62,24 @@ async function start() {
 	let friendsize = userfriends.length
 	console.log(`${colors.YELLOW}Checking ${colors.RED}${username} ${colors.YELLOW}most famous friend...`)
 	if (friendsize <= 0) {
-	    console.log(`${colors.WHITE}${username} ${colors.UI1}doesn't have any friend!`);
-	    process.exit();
+		console.log(`${colors.WHITE}${username} ${colors.UI1}doesn't have any friend!`);
+		process.exit();
 	}
-    const bar = new ProgressBar("Current Progress:", friendsize);
+	const bar = new ProgressBar("Current Progress:", friendsize);
 	const table = new AsciiTable(`${username}'s Most Famous Friends`)
-	  .setHeading('Username', 'Follower', 'Place Visit')
-    const friendsId = await getUserIds(userfriends)
+		.setHeading('Username', 'Follower', 'Place Visit')
+	const friendsId = await getUserIds(userfriends)
 	for (const id of friendsId) {
-        const name = await getUsername(id)
-	    const followcount = await getUserFollowCount(id);
-	    const placevisit = await getUserPlaceVisits(id);
-	    const isbanned = await isBanned(id);
-        bar.progress()
-	    table.addRow(isbanned ? `${name} [BANNED]` : name, followcount, placevisit)
+		const name = await getUsername(id)
+		const followcount = await getUserFollowCount(id);
+		const placevisit = await getUserPlaceVisits(id);
+		const isbanned = await isBanned(id);
+		bar.progress()
+		table.addRow(isbanned ? `${name} [BANNED]` : name, followcount, placevisit)
 	};
-    table.sortColumn(1, function(a,b) {return b - a})
+	table.sortColumn(1, function(a, b) {
+		return b - a
+	})
 	console.log(`${colors.RESET}${table}`)
 	fs.writeFileSync('./result.txt', table.toString())
 	console.log(`${colors.WHITE}The result has been writen in ${colors.YELLOW}result.txt ${colors.WHITE}file.`)
@@ -85,7 +88,9 @@ async function start() {
 }
 async function getFriends(id) {
 	try {
-		const { body } = await request.get(
+		const {
+			body
+		} = await request.get(
 			`https://friends.roblox.com/v1/users/${id}/friends`
 		);
 		return body;
@@ -107,13 +112,14 @@ async function getFriends(id) {
 			console.log(e);
 			//process.exit();
 			return;
-        }
+		}
 	}
 }
 async function getUsername(id) {
 	try {
-		const { body } = await request.get(`https://api.roblox.com/users/${id}`);
-		return body.Username;
+		const res = await request.get(`https://api.roblox.com/users/${id}`).catch(() => {});
+		if (!res) return;
+		return res.body.Username;
 	} catch (e) {
 		if (e.message.toLowerCase() === '404 notfound') {
 			console.log(
@@ -132,22 +138,25 @@ async function getUsername(id) {
 			console.log(e);
 			//process.exit();
 			return;
-    }
+		}
 	}
 }
 
 async function getUserIds(names) {
 	try {
-        var req = {
-            "usernames": names,
-            "excludeBannedUsers": false
-        }
+		var req = {
+			"usernames": names,
+			"excludeBannedUsers": false
+		}
 		const data = await request.post(`https://users.roblox.com/v1/usernames/users`, {
-            headers: {"Content-Type": 'application/json', Accept: 'application/json'},
-            body: JSON.stringify(req)
-        });
-        const arrayData = (JSON.parse(data.text)).data
-        const arrayIds = arrayData.map(i => i.id)
+			headers: {
+				"Content-Type": 'application/json',
+				Accept: 'application/json'
+			},
+			body: JSON.stringify(req)
+		});
+		const arrayData = (JSON.parse(data.text)).data
+		const arrayIds = arrayData.map(i => i.id)
 		return arrayIds;
 	} catch (e) {
 		console.log(e)
@@ -156,7 +165,9 @@ async function getUserIds(names) {
 
 async function getUserFollowCount(id) {
 	try {
-		const { body } = await request.get(`https://friends.roblox.com/v1/users/${id}/followers/count`);
+		const {
+			body
+		} = await request.get(`https://friends.roblox.com/v1/users/${id}/followers/count`);
 		return body.count;
 	} catch (e) {
 		console.log(e)
@@ -165,7 +176,9 @@ async function getUserFollowCount(id) {
 
 async function isBanned(id) {
 	try {
-		const { body } = await request.get(`https://users.roblox.com/v1/users/${id}`);
+		const {
+			body
+		} = await request.get(`https://users.roblox.com/v1/users/${id}`);
 		return body.isBanned;
 	} catch (e) {
 		console.log(e)
@@ -174,12 +187,14 @@ async function isBanned(id) {
 
 async function getUserPlaceVisits(id) {
 	try {
-        let c = 0;
-		const { body } = await request.get(`https://games.roblox.com/v2/users/${id}/games?sortOrder=Asc&limit=50`);
+		let c = 0;
+		const {
+			body
+		} = await request.get(`https://games.roblox.com/v2/users/${id}/games?sortOrder=Asc&limit=50`);
 		for (const game of body.data) {
-            c += game.placeVisits
-        }
-        return c;
+			c += game.placeVisits
+		}
+		return c;
 	} catch (e) {
 		console.log(e)
 	}
