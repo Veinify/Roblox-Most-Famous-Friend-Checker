@@ -67,13 +67,14 @@ async function start() {
     const bar = new ProgressBar("Current Progress:", friendsize);
 	const table = new AsciiTable(`${username}'s Most Famous Friends`)
 	  .setHeading('Username', 'Follower', 'Place Visit')
-	for (const user of userfriends) {
-	    const id = await getUserId(user);
+    const friendsId = await getUserIds(userfriends)
+	for (const id of friendsId) {
+        const name = await getUsername(id)
 	    const followcount = await getUserFollowCount(id);
 	    const placevisit = await getUserPlaceVisits(id);
 	    const isbanned = await isBanned(id);
         bar.progress()
-	    table.addRow(isbanned ? `${user} [BANNED]` : user, followcount, placevisit)
+	    table.addRow(isbanned ? `${name} [BANNED]` : name, followcount, placevisit)
 	};
     table.sortColumn(1, function(a,b) {return b - a})
 	console.log(`${colors.RESET}${table}`)
@@ -135,10 +136,19 @@ async function getUsername(id) {
 	}
 }
 
-async function getUserId(name) {
+async function getUserIds(names) {
 	try {
-		const { body } = await request.get(`https://api.roblox.com/users/get-by-username?username=${name}`);
-		return body.Id;
+        var req = {
+            "usernames": names,
+            "excludeBannedUsers": false
+        }
+		const data = await request.post(`https://users.roblox.com/v1/usernames/users`, {
+            headers: {"Content-Type": 'application/json', Accept: 'application/json'},
+            body: JSON.stringify(req)
+        });
+        const arrayData = (JSON.parse(data.text)).data
+        const arrayIds = arrayData.map(i => i.id)
+		return arrayIds;
 	} catch (e) {
 		console.log(e)
 	}
